@@ -382,18 +382,24 @@ class Message
         if (!is_a($imap, Connection::class)) {
             return Errors::invalidImapConnection(debug_backtrace(), 1, false);
         }
-
+ 
         $client = $imap->getClient();
-
-        $messages = $client->fetch($imap->getMailboxName(), $messageNums, false, ['UID']);
-
-        $uid = [];
-        foreach ($messages as $message) {
-            $uid[] = $message->uid;
+ 
+        // Se $messageNums já é uid:
+        if($flags === FT_UID){
+            $uid = $messageNums;
+            if(!is_array($messageNums))
+                $uid = [$messageNums];
+        }else{
+            $messages = $client->fetch($imap->getMailboxName(), $messageNums, false, ['UID']);
+            $uid = [];
+            foreach ($messages as $message) {
+                $uid[] = $message->uid;
+            }
         }
-
+ 
         $client->flag($imap->getMailboxName(), implode(',', $uid), $client->flags['DELETED']);
-
+ 
         return true;
     }
 
