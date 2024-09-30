@@ -71,16 +71,19 @@ class Connection
      */
     public static function open($mailbox, $user, $password, $flags = 0, $retries = 0, $options = [])
     {
-        $connection = new Connection($mailbox, $user, $password, $flags, $retries, $options);
+        static $connection = null;
 
-        $success = $connection->connect();
+        if(is_null($connection)){
+            $connection = new Connection($mailbox, $user, $password, $flags, $retries, $options);
+            $success = $connection->connect();
 
-        if (empty($success)) {
-            Errors::appendErrorCanNotOpen($mailbox, $connection->getLastError());
+            if (empty($success)) {
+                Errors::appendErrorCanNotOpen($mailbox, $connection->getLastError());
 
-            trigger_error(Errors::couldNotOpenStream($mailbox, debug_backtrace(), 1), E_USER_WARNING);
+                trigger_error(Errors::couldNotOpenStream($mailbox, debug_backtrace(), 1), E_USER_WARNING);
 
-            return false;
+                return false;
+            }
         }
 
         return $connection;
