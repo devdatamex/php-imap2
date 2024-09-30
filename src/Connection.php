@@ -73,7 +73,8 @@ class Connection
     {
         static $connection = null;
 
-        if(is_null($connection)){
+        if (is_null($connection)) {
+            
             $connection = new Connection($mailbox, $user, $password, $flags, $retries, $options);
             $success = $connection->connect();
 
